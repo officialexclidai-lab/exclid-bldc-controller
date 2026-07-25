@@ -1,0 +1,20 @@
+Exclid Semiconductor - BLDC Motor Controller
+Final OpenLane Run: rerun_fanout_fix
+
+Status:
+- RTL verified
+- OpenLane flow completed successfully
+- Final GDS generated
+- Max fanout violation count: 0
+- Max slew violation count: 0
+- Max cap violation count: 0
+- No negative slack paths reported
+- Earlier successful run reported no final DRC violations and no setup/hold violations
+
+Key files:
+- bldc_motor_controller.gds
+- 31-rcx_sta.checks.rpt
+- metrics.csv
+- manufacturability.rpt
+- bldc_motor_controller.v
+- tb_bldc_motor_controller.v
