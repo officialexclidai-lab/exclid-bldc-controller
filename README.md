@@ -1,69 +1,132 @@
 # Exclid Semiconductor - BLDC Motor Controller
 
-## Status: RTL Development + FPGA Prototype Phase
-**Team:** 2 people (Founder + Technical Co-founder)
-**Location:** Kharagpur, West Bengal
+Open-source BLDC motor controller RTL designed for ASIC implementation in SkyWater 130nm using the OpenLane flow.
 
-## Architecture
-- PWM: 8-bit, 255-cycle
-- Commutation: 6-step hall-sensor
-- Protection: Overcurrent with fault output
-- Soft-start: Rate-limited throttle
+## Overview
 
-## Files
+This project is a digital BLDC motor controller core developed as an early semiconductor proof-of-work for Exclid Semiconductor. It includes Verilog RTL, a simulation testbench, FPGA-oriented integration files, and a completed RTL-to-GDSII implementation using open-source EDA tools.
 
-### RTL Design
-- `src/rtl/bldc_motor_controller.v` - Core chip logic (129 lines)
-- `src/testbench/tb_bldc_motor_controller.v` - Simulation testbench
+The design was taken through functional verification, synthesis, place-and-route, signoff timing analysis, and final GDS generation. The final cleaned rerun removed the earlier fanout issue and reported zero max fanout, max slew, and max capacitance violations.
 
-### FPGA Demo
-- `fpga/fpga_top.v` - Top-level wrapper for real hardware
-- `fpga/basys3_constraints.xdc` - Digilent Basys 3 / Arty A7 pin constraints
-- `fpga/ecp5_constraints.ldc` - Lattice ECP5 / ULX3S pin constraints
-- `fpga/scripts/build_basys3.tcl` - Vivado build script
-- `fpga/Makefile` - Build targets for both Xilinx and Lattice
+## Features
 
-## Toolchain (Free)
-- Icarus Verilog (simulation)
-- Yosys (synthesis)
-- OpenLane (physical design)
-- SkyWater 130nm PDK (free)
-- Vivado WebPACK (free for Artix-7) or nextpnr (free for ECP5)
+- 8-bit PWM generation for motor drive control
+- 6-step Hall-sensor commutation logic
+- Soft-start throttle behavior
+- Overcurrent protection and fault signaling
+- Verilog RTL with simulation testbench
+- OpenLane Sky130 physical design flow
+- Final GDSII layout generated successfully
 
-## Quick Start
+## Project Structure
 
-### Simulation
+```text
+.
+├── README.md
+├── RESULTS_SUMMARY.txt
+├── src/
+│   ├── rtl/
+│   │   └── bldc_motor_controller.v
+│   └── testbench/
+│       └── tb_bldc_motor_controller.v
+├── fpga/
+├── docs/
+│   └── images/
+│       ├── gtkwave-waveform.jpg
+│       └── klayout-layout.jpg
+└── openlane/
+```
+
+## Tools Used
+
+- Verilog HDL
+- Icarus Verilog
+- GTKWave
+- Yosys
+- OpenLane
+- SkyWater SKY130 PDK
+- KLayout
+
+## Functional Overview
+
+The controller accepts Hall sensor inputs and throttle input, then produces phase driver outputs for BLDC commutation. It also monitors overcurrent behavior and raises a fault signal when required.
+
+At the simulation level, the waveform demonstrates clock activity, Hall state transitions, throttle input behavior, phase driver updates, and fault-related signals. At the physical-design level, the same RTL was synthesized and converted into a final GDS layout.
+
+## Results
+
+- RTL simulation completed successfully
+- GTKWave waveform captured for core control signals
+- OpenLane flow completed successfully
+- Final GDS generated
+- Positive timing slack reported
+- Max fanout violation count: 0
+- Max slew violation count: 0
+- Max cap violation count: 0
+- Earlier successful run reported no final DRC violations and no setup/hold violations
+
+## Screenshots
+
+### GTKWave simulation waveform
+
+The waveform below shows the BLDC controller simulation in GTKWave, including the Hall sensor sequence, phase driver response, reset, throttle, overcurrent, and fault-related signals.
+
+
+
+### KLayout physical layout
+
+The image below shows the final GDS layout of the `bldc_motor_controller` generated through the OpenLane Sky130 physical design flow.
+
+
+
+## How to Run Simulation
+
+From the project folder, compile and run the testbench:
+
 ```bash
-cd src
-iverilog -g2012 -o bldc_sim.out rtl/bldc_motor_controller.v testbench/tb_bldc_motor_controller.v
+iverilog -g2012 -o bldc_sim.out src/rtl/bldc_motor_controller.v src/testbench/tb_bldc_motor_controller.v
 vvp bldc_sim.out
 gtkwave bldc_testbench.vcd
 ```
 
-### FPGA Build (Xilinx)
+This opens the waveform viewer so the key signals can be inspected visually.
+
+## How to Run OpenLane
+
+Place the design files and configuration in your OpenLane design directory, then run:
+
 ```bash
-cd fpga
-vivado -mode batch -source scripts/build_basys3.tcl
+./flow.tcl -design bldc_motor_controller
 ```
 
-### FPGA Build (Lattice ECP5 - Open Source)
-```bash
-cd fpga
-make lattice
-```
+For the cleaned final run, use the rerun tag that includes the fanout fix configuration.
 
-## Demo Setup
-1. Program FPGA board with bitstream
-2. Connect SW[2:0] to simulate hall sensor states
-3. Set SW[15:8] for throttle (0-255)
-4. Press BTNC to reset
-5. Press BTNU to trigger overcurrent
-6. LEDs show phase driver outputs
-7. Connect PMOD headers to external motor driver (e.g., DRV8301)
+## Key Output Files
 
-## Target
-- OpenMPW tape-out (Q4 2026)
-- FPGA prototype validation with real EV motor
+- `bldc_motor_controller.gds`
+- `31-rcx_sta.checks.rpt`
+- `metrics.csv`
+- `manufacturability.rpt`
+- `bldc_motor_controller.v`
+- `tb_bldc_motor_controller.v`
+
+## GitHub Upload Guide
+
+If uploading manually through the GitHub web interface:
+
+1. Create the repository.
+2. Upload `README.md`.
+3. Upload the waveform screenshot as `docs/images/gtkwave-waveform.jpg`.
+4. Upload the KLayout screenshot as `docs/images/klayout-layout.jpg`.
+5. Upload the key reports and source files.
+6. Confirm that the README preview renders both images correctly.
+
+## Status
+
+This project demonstrates a complete open-source ASIC flow for a BLDC motor controller, from RTL design and verification to physical layout generation.
+
+It serves as a strong semiconductor portfolio project because it includes both functional proof and physical-design proof.
 
 ## License
+
 Apache 2.0
